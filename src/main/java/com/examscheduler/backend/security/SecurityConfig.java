@@ -2,24 +2,27 @@ package com.examscheduler.backend.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configuration // Marks this class as a configuration class (Spring will scan and recognize it)
-@EnableWebSecurity // Enables Spring Security's web security support
+@Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
-    // Create a PasswordEncoder Bean so Spring can inject it anywhere
+    // creates a bean for bcrypt password encoding to securely hash passwords
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Use BCrypt for password hashing
+        return new BCryptPasswordEncoder();
     }
 
-    // Configure HTTP security (which endpoints are protected, which are public)
+    // configures security rules for http requests
+    // disables csrf protection, sets authorization rules, and enables http basic authentication
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -29,10 +32,15 @@ public class SecurityConfig {
                         .requestMatchers("/api/exams/**").authenticated()
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults()); // <---- Add this!!
+                .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }
 
-
+    // provides an authentication manager bean for handling authentication logic
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
 }
+

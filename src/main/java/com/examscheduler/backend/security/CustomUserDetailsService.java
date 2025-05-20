@@ -6,37 +6,31 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
-@Service // Marks this as a Spring-managed service
+// service class for loading user details from the database for authentication
+@Service
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
-    // Constructor injection for UserRepository
+    // constructor to inject the user repository dependency
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    // This method is called automatically by Spring Security when someone tries to log in
+    // loads user details by username for authentication
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // fetch the user from the database or throw an exception if not found
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
-        // Look up the user by username
-        Optional<User> optionalUser = userRepository.findByUsername(username);
-
-        // If not found, throw error (this triggers a 401)
-        if (optionalUser.isEmpty()) {
-            throw new UsernameNotFoundException("User not found: " + username);
-        }
-
-        User user = optionalUser.get();
-
-        // Return a Spring Security-compatible user object
+        // build and return a UserDetails object with the user's credentials and role
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
-                .password(user.getPassword()) // Password must already be hashed (BCrypt)
-                .roles("USER") // You can set custom roles later (like ADMIN, etc.)
+                .password(user.getPassword())
+                .roles("USER")
                 .build();
     }
 }
+

@@ -1,13 +1,13 @@
 package com.examscheduler.backend.dto;
 
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDateTime;
 
-
-
-// dto class for capturing exam details when adding a new exam
-public class AddExamRequest {
+// dto class for capturing updated exam details
+public class UpdateExamRequest {
 
     @NotBlank(message = "Subject cannot be blank")
     private String subject;
@@ -16,16 +16,15 @@ public class AddExamRequest {
     @NotBlank(message = "Location cannot be left blank")
     private String location;
 
-    public AddExamRequest() {
+    public UpdateExamRequest() {
     }
 
-    // initializes the add exam request with subject, date, and location
-    public AddExamRequest(String subject, LocalDateTime examDate, String location) {
+    // initializes the update exam request with subject, date, and location
+    public UpdateExamRequest(String subject, LocalDateTime examDate, String location) {
         this.subject = subject;
         this.examDate = examDate;
         this.location = location;
     }
-
 
     public String getSubject() {
         return subject;

@@ -21,7 +21,7 @@ public class Exam {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    User user;
+    User user;  // maps the user_id column in the database to user
 
 
 
@@ -35,6 +35,14 @@ public class Exam {
         this.subject = subject;
         this.examDate = examDate;
         this.location = location;
+    }
+
+    public Long getId() {
+        return Id;
+    }
+
+    public void setId(Long id) {
+        Id = id;
     }
 
     public User getUser() {

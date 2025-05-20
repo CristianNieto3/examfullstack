@@ -28,4 +28,6 @@ public class AuthController {
         userService.registerUser(signupRequest);
         return ResponseEntity.ok("User registered successfully");
     }
+
+
 }
