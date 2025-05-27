@@ -33,7 +33,7 @@ public class ExamController {
     @GetMapping("/all")
     public ResponseEntity<List<Exam>> getAllExams() {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();      // username validation
-        List<Exam> exams = examService.getAllExamsForCurrentUser(); // goes through the list of exams for the user and returns them
+        List<Exam> exams = examService.getAllExamsForCurrentUser();// goes through the list of exams for the user and returns them
         return ResponseEntity.ok(exams);
     }
 
@@ -50,12 +50,15 @@ public class ExamController {
         return ResponseEntity.ok(exam);
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<String> updateExam(@PathVariable Long id , @RequestBody UpdateExamRequest updateRequest) {
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateExam(
+            @PathVariable Long id,
+            @RequestBody UpdateExamRequest updateRequest
+    ) {
         examService.updateExam(id, updateRequest);
         return ResponseEntity.ok("Exam updated successfully");
-
     }
+
 
 
     }

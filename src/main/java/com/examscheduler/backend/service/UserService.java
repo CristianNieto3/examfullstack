@@ -2,6 +2,7 @@ package com.examscheduler.backend.service;
 
 import com.examscheduler.backend.dto.SignupRequest;
 import com.examscheduler.backend.entity.User;
+import com.examscheduler.backend.exception.BadRequestException;
 import com.examscheduler.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +23,13 @@ public class UserService {
 
     // registers a new user by saving their details to the database
     public void registerUser(SignupRequest signupRequest) {
-        // create a new user object
+        String email = signupRequest.getUsername().toLowerCase().trim();
+
+        // prevent duplicate emails
+        if(userRepository.existsByUsername(email)) {
+            throw new BadRequestException("Email is already in use");
+        }
+
         User user = new User();
 
         // set the username from the signup request

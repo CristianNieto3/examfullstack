@@ -12,39 +12,54 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-// handles global exceptions and provides custom error responses for the application
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    // handles validation errors and returns a structured response with error messages
+    // 1) Handle your custom BadRequestException first
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<String> handleBadRequest(BadRequestException ex) {
+        // Return plain text -> front end’s response.text() will be the message
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ex.getMessage());
+    }
+
+    // 2) Bean Validation errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, List<String>>> handleValidationErrors(MethodArgumentNotValidException ex) {
-        // extracts default error messages from field validation errors
         List<String> errors = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getDefaultMessage())
                 .collect(Collectors.toList());
 
-        // prepares the response body with the list of error messages
-        Map<String, List<String>> responseBody = new HashMap<>();
-        responseBody.put("errors", errors);
+        Map<String, List<String>> body = new HashMap<>();
+        body.put("errors", errors);
 
-        // returns a bad_request response with the error details
-        return new ResponseEntity<>(responseBody, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(body);
     }
 
+    // 3) Explicit ResponseStatusExceptions
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Map<String,String>> handleResponseStatusException(ResponseStatusException ex) {
-        Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("error" , ex.getReason());
-        return new ResponseEntity<>(responseBody, ex.getStatusCode());
-
+    public ResponseEntity<Map<String, String>> handleResponseStatusException(ResponseStatusException ex) {
+        Map<String, String> body = Map.of("error", ex.getReason());
+        return new ResponseEntity<>(body, ex.getStatusCode());
     }
 
+    // 4) Fallback for all other exceptions
+    // src/main/java/com/examscheduler/backend/exception/GlobalExceptionHandler.java
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
-        Map<String, String> body = new HashMap<>();
-        body.put("error", "Something went wrong on our end. Please try again later.");
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<String> debugAllExceptions(Exception ex) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(ex.getClass().getName())
+                .append(": ")
+                .append(ex.getMessage())
+                .append("\n");
+        for (StackTraceElement ste : ex.getStackTrace()) {
+            sb.append("    at ").append(ste).append("\n");
+        }
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(sb.toString());
     }
+
 }

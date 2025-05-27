@@ -16,6 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class ExamService {
@@ -45,7 +47,9 @@ public class ExamService {
         // create a new exam and set its fields
         Exam exam = new Exam();
         exam.setSubject(request.getSubject());
-        exam.setExamDate(request.getExamDate());
+        exam.setExamDate(
+                LocalDateTime.of(request.getExamDate(), request.getExamTime())
+        );
         exam.setLocation(request.getLocation());
         exam.setUser(user);
 
